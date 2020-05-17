@@ -60,6 +60,30 @@ router.post("/customers/signup/:user/:pw/:fname/:lname/:minitial/:dob/:email/:ph
 	});
 });
 
+// Delete account for existing customer
+router.delete("/customers/delete/:user/:pw",function(req,res){
+	global.connection.query('SELECT CustomerPassword FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
+		if (error) throw error;
+		if (results.length > 0) { // If this username exists
+			bcrypt.compare(req.params.pw, results[0].CustomerPassword, function(err, result) {
+				if (err) throw err;
+				if (result == true) { // If password is a match
+					global.connection.query('DELETE FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
+						if (error) throw error;
+						res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+					});
+				}
+				else {
+					res.send(JSON.stringify({"status": 401}));
+				}
+			});
+		}
+		else {
+			res.send(JSON.stringify({"status": 401}));
+		}
+	});
+});
+
 // Change account details for existing customer
 router.put("/customers/profile/bio/update/:user/:pw/:moduser/:modpw/:fname/:lname/:minitial/:dob/:email/:phone",function(req,res){
 	global.connection.query('SELECT CustomerPassword FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
@@ -96,6 +120,31 @@ router.get("/customers/profile/bio/view/:user/:pw",function(req,res){
 				if (err) throw err;
 				if (result == true) { // If password is a match
 					global.connection.query('SELECT CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
+						if (error) throw error;
+						res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+					});
+				}
+				else {
+					res.send(JSON.stringify({"status": 401}));
+				}
+			});
+		}
+		else {
+			res.send(JSON.stringify({"status": 401}));
+		}
+	});
+});
+
+// View all other customers/browse users
+router.get("/customers/view/:user/:pw",function(req,res){
+	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
+		if (error) throw error;
+		if (results.length > 0) { // If this username exists
+			customerID = results[0].CustomerID;
+			bcrypt.compare(req.params.pw, results[0].CustomerPassword, function(err, result) {
+				if (err) throw err;
+				if (result == true) { // If password is a match
+					global.connection.query('SELECT CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM OceansOfPotions_sp20.customers WHERE CustomerID != ?', [customerID], function (error, results, fields) {
 						if (error) throw error;
 						res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
 					});
