@@ -1,3 +1,5 @@
+-- Truncates the potions table and the languages table, and then repopulates them with all the potions and their respective languages.
+
 use OceansOfPotions_sp20;
 
 DELETE FROM potions;
@@ -25,4 +27,90 @@ VALUES
 ('Time Traveler', 'Prevents any race conditions or synchronization issues.', 425)
 ;
 
-SELECT * FROM potions;
+DELETE FROM languages;
+INSERT INTO languages (PotionID, LanguageName)
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Bug Blaster'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Bug Blaster'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Poetic Pantry'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Poetic Pantry'
+UNION ALL
+SELECT PotionID, 'C' FROM potions WHERE PotionName = 'Speedy Sorter'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Speedy Sorter'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Terrific Translator'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Terrific Translator'
+UNION ALL
+SELECT PotionID, 'C' FROM potions WHERE PotionName = 'Terrific Translator'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Terrific Translator'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Deceptive Decompiler'
+UNION ALL
+SELECT PotionID, 'C' FROM potions WHERE PotionName = 'Deceptive Decompiler'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Deceptive Decompiler'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Aesthetic Artist'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Shape Shifter'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Runtime Revealer'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Runtime Revealer'
+UNION ALL
+SELECT PotionID, 'C' FROM potions WHERE PotionName = 'Runtime Revealer'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Runtime Revealer'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Crafty Commenter'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Crafty Commenter'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Syntax Sniper'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Syntax Sniper'
+UNION ALL
+SELECT PotionID, 'C' FROM potions WHERE PotionName = 'Stack Searcher'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Stack Searcher'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Psuedo Psychic'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Cocky Completer'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Clandestine Calculator'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Clandestine Calculator'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Clandestine Calculator'
+UNION ALL
+SELECT PotionID, 'C' FROM potions WHERE PotionName = 'Functional Fairy'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Functional Fairy'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Zany Zebra'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Zany Zebra'
+UNION ALL
+SELECT PotionID, 'C' FROM potions WHERE PotionName = 'Zany Zebra'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Zany Zebra'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Lofty Lorax'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Squirt Shortener'
+UNION ALL
+SELECT PotionID, 'C' FROM potions WHERE PotionName = 'Squirt Shortener'
+UNION ALL
+SELECT PotionID, 'C++' FROM potions WHERE PotionName = 'Squirt Shortener'
+UNION ALL
+SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Nifty Namer'
+UNION ALL
+SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Time Traveler';
+
+SELECT * FROM languages;
