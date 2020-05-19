@@ -26,7 +26,7 @@ def make_post_call(url, data):
     return True
 
 # Returns true if successful and false if failed. Prints error message.
-def make_put_call(url,data):
+def make_put_call(url, data):
     resp = requests.put(url, json=data)
     if resp.json()['status'] != 200:
         # Make sure not to expose SQL by checking if response is a dict before printing error message
