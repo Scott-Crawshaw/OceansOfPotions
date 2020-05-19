@@ -49,6 +49,7 @@ router.get("/",function(req,res){
 });
 
 // Create account for new customer
+// Body must include password, user, fname, lname, minitial, dob, email, phone
 router.post("/customers/signup",function(req,res){
 	bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
 		if (err){
@@ -67,6 +68,7 @@ router.post("/customers/signup",function(req,res){
 });
 
 // Delete account for existing customer
+// Body must include pw, user
 router.delete("/customers/delete",function(req,res){
 	global.connection.query('SELECT CustomerPassword FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.body.user], function (error, results, fields) {
 		if (error){
@@ -100,6 +102,7 @@ router.delete("/customers/delete",function(req,res){
 });
 
 // Change account details for existing customer
+// Body must include pw, user, modpw, moduser, fname, lname, minitial, dob, email, phone
 router.put("/customers/profile/bio/update",function(req,res){
 	global.connection.query('SELECT CustomerPassword FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.body.user], function (error, results, fields) {
 		if (error){
@@ -206,6 +209,7 @@ router.get("/customers/view/:user/:pw",function(req,res){
 });
 
 // Follow another customer
+// Body must include pw, followeruser, followinguser
 router.post("/customers/follow",function(req,res){
 	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.body.followeruser], function (error, results, fields) {
 		if (error){
@@ -257,6 +261,7 @@ router.post("/customers/follow",function(req,res){
 });
 
 // Unfollow another customer
+// Body must include pw, followeruser, followinguser
 router.delete("/customers/unfollow",function(req,res){
 	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.body.followeruser], function (error, results, fields) {
 		if (error){
