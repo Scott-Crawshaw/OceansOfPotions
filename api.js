@@ -68,21 +68,21 @@ router.post("/customers/signup",function(req,res){
 });
 
 // Delete account for existing customer
-// Body must include pw, user
-router.delete("/customers/delete",function(req,res){
-	global.connection.query('SELECT CustomerPassword FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.body.user], function (error, results, fields) {
+// Query must include pw
+router.delete("/customers/delete/:user",function(req,res){
+	global.connection.query('SELECT CustomerPassword FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
 		if (error){
 			res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 			return;
 		}
 		if (results.length > 0) { // If this username exists
-			bcrypt.compare(req.body.pw, results[0].CustomerPassword, function(err, result) {
+			bcrypt.compare(req.query.pw, results[0].CustomerPassword, function(err, result) {
 				if (err){
 					res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 					return;
 				}
 				if (result == true) { // If password is a match
-					global.connection.query('DELETE FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.body.user], function (error, results, fields) {
+					global.connection.query('DELETE FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
 						if (error){
 							res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 							return;
@@ -142,14 +142,15 @@ router.put("/customers/profile/bio/update",function(req,res){
 });
 
 // View account details for existing customer
-router.get("/customers/profile/bio/view/:user/:pw",function(req,res){
+// Query must include pw
+router.get("/customers/profile/bio/view/:user",function(req,res){
 	global.connection.query('SELECT CustomerPassword FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
 		if (error){
 			res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 			return;
 		}
 		if (results.length > 0) { // If this username exists
-			bcrypt.compare(req.params.pw, results[0].CustomerPassword, function(err, result) {
+			bcrypt.compare(req.query.pw, results[0].CustomerPassword, function(err, result) {
 				if (err){
 					res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 					return;
@@ -175,7 +176,8 @@ router.get("/customers/profile/bio/view/:user/:pw",function(req,res){
 });
 
 // View all other customers/browse users
-router.get("/customers/view/:user/:pw",function(req,res){
+// Query must include pw
+router.get("/customers/view/:user",function(req,res){
 	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
 		if (error){
 			res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
@@ -183,7 +185,7 @@ router.get("/customers/view/:user/:pw",function(req,res){
 		}
 		if (results.length > 0) { // If this username exists
 			customerID = results[0].CustomerID;
-			bcrypt.compare(req.params.pw, results[0].CustomerPassword, function(err, result) {
+			bcrypt.compare(req.query.pw, results[0].CustomerPassword, function(err, result) {
 				if (err){
 					res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 					return;
@@ -261,22 +263,22 @@ router.post("/customers/follow",function(req,res){
 });
 
 // Unfollow another customer
-// Body must include pw, followeruser, followinguser
-router.delete("/customers/unfollow",function(req,res){
-	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.body.followeruser], function (error, results, fields) {
+// Query must include pw, followeruser
+router.delete("/customers/unfollow/:followinguser",function(req,res){
+	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.query.followeruser], function (error, results, fields) {
 		if (error){
 			res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 			return;
 		}
 		if (results.length > 0) { // If this username exists
 			followerID = results[0].CustomerID;
-			bcrypt.compare(req.body.pw, results[0].CustomerPassword, function(err, result) {
+			bcrypt.compare(req.query.pw, results[0].CustomerPassword, function(err, result) {
 				if (err){
 					res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 					return;
 				}
 				if (result == true) { // If password is a match
-					global.connection.query('SELECT CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.body.followinguser], function (error, results, fields) {
+					global.connection.query('SELECT CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.followinguser], function (error, results, fields) {
 						if (error){
 							res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 							return;
@@ -313,7 +315,8 @@ router.delete("/customers/unfollow",function(req,res){
 });
 
 // View a customer's following list
-router.get("/customers/profile/following/view/:user/:pw",function(req,res){
+// Query must include pw
+router.get("/customers/profile/following/view/:user",function(req,res){
 	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
 		if (error){
 			res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
@@ -321,7 +324,7 @@ router.get("/customers/profile/following/view/:user/:pw",function(req,res){
 		}
 		if (results.length > 0) { // If this username exists
 			followerID = results[0].CustomerID;
-			bcrypt.compare(req.params.pw, results[0].CustomerPassword, function(err, result) {
+			bcrypt.compare(req.query.pw, results[0].CustomerPassword, function(err, result) {
 				if (err){
 					res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 					return;
@@ -347,7 +350,8 @@ router.get("/customers/profile/following/view/:user/:pw",function(req,res){
 });
 
 // View a customer's follower list
-router.get("/customers/profile/follower/view/:user/:pw",function(req,res){
+// Query must include pw
+router.get("/customers/profile/follower/view/:user",function(req,res){
 	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
 		if (error){
 			res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
@@ -355,7 +359,7 @@ router.get("/customers/profile/follower/view/:user/:pw",function(req,res){
 		}
 		if (results.length > 0) { // If this username exists
 			followingID = results[0].CustomerID;
-			bcrypt.compare(req.params.pw, results[0].CustomerPassword, function(err, result) {
+			bcrypt.compare(req.query.pw, results[0].CustomerPassword, function(err, result) {
 				if (err){
 					res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 					return;
