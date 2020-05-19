@@ -112,5 +112,3 @@ UNION ALL
 SELECT PotionID, 'Python' FROM potions WHERE PotionName = 'Nifty Namer'
 UNION ALL
 SELECT PotionID, 'Java' FROM potions WHERE PotionName = 'Time Traveler';
-
-SELECT * FROM languages;
