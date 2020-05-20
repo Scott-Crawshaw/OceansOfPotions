@@ -94,6 +94,38 @@ router.get("/customers/:user",function(req,res){
 	});
 });
 
+// Update account details, not including password
+router.put("/customers",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('UPDATE Customers SET ' + req.body.attribute + ' = ? WHERE CustomerID = ?', [customerID], function (error, results, fields) {
+			if (error){
+				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+				return;
+			}
+			res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+		});
+	});
+});
+
+// Update password
+router.put("/customers/password",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+			if (err){
+				res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
+				return;
+			}
+			global.connection.query('UPDATE Customers SET password = ? WHERE CustomerID = ?', [hash, customerID], function (error, results, fields) {
+				if (error){
+					res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+					return;
+				}
+				res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+			});
+		});
+	});
+});
+
 // View all other customers/browse users
 router.get("/customers",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
