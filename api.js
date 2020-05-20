@@ -384,6 +384,44 @@ router.get("/customers/profile/follower/view/:user",function(req,res){
 	});
 });
 
+router.get("/potions",function(req,res){
+	authAndRun(req, res, function(req, res){
+		global.connection.query('SELECT * FROM OceansOfPotions_sp20.potions', function (error, results, fields) {
+			if (error){
+				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+				return;
+			}
+			res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+		});
+	});
+});
+
+function authAndRun(req, res, funcToRun){
+	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.params.user], function (error, results, fields) {
+		if (error){
+			res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+			return;
+		}
+		if (results.length > 0) { // If this username exists
+			bcrypt.compare(req.query.pw, results[0].CustomerPassword, function(err, result) {
+				if (err){
+					res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
+					return;
+				}
+				if (result == true) { // If password is a match
+					funcToRun(req, res);
+				}
+				else {
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
+				}
+			});
+		}
+		else {
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
+		}
+	});
+}
+
 // start server running on port 3000 (or whatever is set in env)
 app.use(express.static(__dirname + '/'));
 app.use("/",router);
