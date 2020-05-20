@@ -56,7 +56,7 @@ router.post("/customers",function(req,res){
 			res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 			return;
 		}
-		global.connection.query('INSERT INTO OceansOfPotions_sp20.customers (`CustomerUsername`, `CustomerPassword`, `CustomerFirstName`, `CustomerLastName`, `CustomerMiddleInitial`, `CustomerDOB`, `CustomerPrimaryEmail`, `CustomerPrimaryPhone`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+		global.connection.query('INSERT INTO customers (`CustomerUsername`, `CustomerPassword`, `CustomerFirstName`, `CustomerLastName`, `CustomerMiddleInitial`, `CustomerDOB`, `CustomerPrimaryEmail`, `CustomerPrimaryPhone`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
 			[req.body.user, hash, req.body.fname, req.body.lname, req.body.minitial, req.body.dob, req.body.email, req.body.phone], function (error, results, fields) {
 				if (error){
 					res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
@@ -71,7 +71,7 @@ router.post("/customers",function(req,res){
 // Can only delete your own account
 router.delete("/customers",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('DELETE FROM OceansOfPotions_sp20.customers WHERE CustomerID = ?', [customerID], function (error, results, fields) {
+		global.connection.query('DELETE FROM customers WHERE CustomerID = ?', [customerID], function (error, results, fields) {
 			if (error){
 				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 				return;
@@ -84,7 +84,7 @@ router.delete("/customers",function(req,res){
 // View account details for any existing customer
 router.get("/customers/:user",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM OceansOfPotions_sp20.customers WHERE CustomerID = ?', [req.params.user], function (error, results, fields) {
+		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM customers WHERE CustomerID = ?', [req.params.user], function (error, results, fields) {
 			if (error){
 				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 				return;
@@ -98,7 +98,7 @@ router.get("/customers/:user",function(req,res){
 // Include newValue and attribute in body
 router.put("/customers",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('UPDATE Customers SET ' + req.body.attribute + ' = ? WHERE CustomerID = ?', [req.body.newValue, customerID], function (error, results, fields) {
+		global.connection.query('UPDATE customers SET ' + req.body.attribute + ' = ? WHERE CustomerID = ?', [req.body.newValue, customerID], function (error, results, fields) {
 			if (error){
 				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 				return;
@@ -117,7 +117,7 @@ router.put("/customers/password",function(req,res){
 				res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 				return;
 			}
-			global.connection.query('UPDATE Customers SET password = ? WHERE CustomerID = ?', [hash, customerID], function (error, results, fields) {
+			global.connection.query('UPDATE customers SET CustomerPassword = ? WHERE CustomerID = ?', [hash, customerID], function (error, results, fields) {
 				if (error){
 					res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 					return;
@@ -131,7 +131,7 @@ router.put("/customers/password",function(req,res){
 // View all other customers/browse users
 router.get("/customers",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM OceansOfPotions_sp20.customers WHERE CustomerID != ?', [customerID], function (error, results, fields) {
+		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM customers WHERE CustomerID != ?', [customerID], function (error, results, fields) {
 			if (error){
 				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 				return;
@@ -143,17 +143,17 @@ router.get("/customers",function(req,res){
 
 // Follow another customer
 // No body needed
-router.put("/customers/follow/:user",function(req,res){
+router.post("/customers/follow/:user",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		followerID = customerID;
 		followingID = req.params.user;
 		if (followingID != followerID) { // If not attempting to follow self
-			global.connection.query('INSERT INTO OceansOfPotions_sp20.following (`FollowerID`, `FollowingID`) VALUES(?, ?)', [followerID, followingID], function (error, results, fields) {
+			global.connection.query('INSERT INTO following (`FollowerID`, `FollowingID`) VALUES(?, ?)', [followerID, followingID], function (error, results, fields) {
 				if (error){
 					res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 					return;
 				}
-				res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+				res.send(JSON.stringify({"status": 201, "error": null, "response": results}));
 			});
 		}
 		else {
@@ -163,12 +163,12 @@ router.put("/customers/follow/:user",function(req,res){
 });
 
 // Unfollow another customer
-router.delete("/customers/unfollow/:user",function(req,res){
+router.delete("/customers/follow/:user",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		followerID = customerID;
 		followingID = req.params.user;
 		if (followingID != followerID) { // If not attempting to unfollow self
-			global.connection.query('DELETE FROM OceansOfPotions_sp20.following WHERE FollowerID = ? AND FollowingID = ?', [followerID, followingID], function (error, results, fields) {
+			global.connection.query('DELETE FROM following WHERE FollowerID = ? AND FollowingID = ?', [followerID, followingID], function (error, results, fields) {
 				if (error){
 					res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 					return;
@@ -183,10 +183,10 @@ router.delete("/customers/unfollow/:user",function(req,res){
 });
 
 // View a customer's following list
-// User param can be any user
-router.get("/customers/following/:user",function(req,res){
+router.get("/following",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM OceansOfPotions_sp20.customers WHERE CustomerID IN (SELECT FollowingID FROM OceansOfPotions_sp20.following WHERE FollowerID = ?)', [req.params.user], function (error, results, fields) {
+		console.log(customerID);
+		global.connection.query('SELECT CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM customers WHERE CustomerID IN (SELECT FollowingID FROM following WHERE FollowerID = ?)', [customerID], function (error, results, fields) {
 			if (error){
 				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 				return;
@@ -197,10 +197,9 @@ router.get("/customers/following/:user",function(req,res){
 });
 
 // View a customer's follower list
-// User param can be any user
-router.get("/customers/follower/:user",function(req,res){
+router.get("/followers",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM OceansOfPotions_sp20.customers WHERE CustomerID IN (SELECT FollowerID FROM OceansOfPotions_sp20.following WHERE FollowingID = ?)', [req.params.user], function (error, results, fields) {
+		global.connection.query('SELECT CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM customers WHERE CustomerID IN (SELECT FollowerID FROM following WHERE FollowingID = ?)', [customerID], function (error, results, fields) {
 			if (error){
 				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 				return;
@@ -213,7 +212,7 @@ router.get("/customers/follower/:user",function(req,res){
 // Gets all potions
 router.get("/potions",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM OceansOfPotions_sp20.potions', function (error, results, fields) {
+		global.connection.query('SELECT * FROM potions', function (error, results, fields) {
 			if (error){
 				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 				return;
@@ -226,7 +225,7 @@ router.get("/potions",function(req,res){
 // General function for authenticating and running code
 // Always need user and pw in query
 function authAndRun(req, res, funcToRun){
-	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.query.user], function (error, results, fields) {
+	global.connection.query('SELECT CustomerPassword, CustomerID FROM customers WHERE CustomerUsername = ?', [req.query.user], function (error, results, fields) {
 		if (error){
 			res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 			return;

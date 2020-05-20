@@ -48,5 +48,3 @@ def make_delete_call(url):
             print("Error " + str(resp.json()['status']) + ": " + str(resp.json()['error']))
         return False
     return True
-
-print(make_get_call('http://localhost:8080/customers/7?user=scottcrawshaw&pw=craw'))
