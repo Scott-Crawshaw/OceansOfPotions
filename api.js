@@ -149,7 +149,7 @@ router.delete("/customers/unfollow/:user",function(req,res){
 
 // View a customer's following list
 // User param can be any user
-router.get("/customers/profile/following/:user",function(req,res){
+router.get("/customers/following/:user",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		global.connection.query('SELECT CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM OceansOfPotions_sp20.customers WHERE CustomerID IN (SELECT FollowingID FROM OceansOfPotions_sp20.following WHERE FollowerID = ?)', [req.params.user], function (error, results, fields) {
 			if (error){
@@ -163,7 +163,7 @@ router.get("/customers/profile/following/:user",function(req,res){
 
 // View a customer's follower list
 // User param can be any user
-router.get("/customers/profile/follower/:user",function(req,res){
+router.get("/customers/follower/:user",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		global.connection.query('SELECT CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM OceansOfPotions_sp20.customers WHERE CustomerID IN (SELECT FollowerID FROM OceansOfPotions_sp20.following WHERE FollowingID = ?)', [req.params.user], function (error, results, fields) {
 			if (error){
@@ -175,6 +175,7 @@ router.get("/customers/profile/follower/:user",function(req,res){
 	});
 });
 
+// Gets all potions
 router.get("/potions",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		global.connection.query('SELECT * FROM OceansOfPotions_sp20.potions', function (error, results, fields) {
@@ -187,6 +188,7 @@ router.get("/potions",function(req,res){
 	});
 });
 
+// General function for authenticating and running code
 function authAndRun(req, res, funcToRun){
 	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.query.user], function (error, results, fields) {
 		if (error){
