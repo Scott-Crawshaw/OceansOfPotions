@@ -108,9 +108,10 @@ router.put("/customers",function(req,res){
 });
 
 // Update password
+// Include newPassword in body
 router.put("/customers/password",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+		bcrypt.hash(req.body.newPassword, saltRounds, function(err, hash) {
 			if (err){
 				res.send(JSON.stringify({"status": 500, "error": "Internal error", "response": null}));
 				return;
@@ -221,6 +222,7 @@ router.get("/potions",function(req,res){
 });
 
 // General function for authenticating and running code
+// Always need user and pw in query
 function authAndRun(req, res, funcToRun){
 	global.connection.query('SELECT CustomerPassword, CustomerID FROM OceansOfPotions_sp20.customers WHERE CustomerUsername = ?', [req.query.user], function (error, results, fields) {
 		if (error){
