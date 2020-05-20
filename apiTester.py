@@ -16,7 +16,7 @@ def make_get_call(url):
 # Returns true if successful and false if failed. Prints error message.
 def make_post_call(url, data):
     resp = requests.post(url, json=data)
-    if resp.json()['status'] != 201:
+    if resp.json()['status'] != 200:
         # Make sure not to expose SQL by checking if response is a dict before printing error message
         if type(resp.json()['error']) == dict and 'sqlMessage' in resp.json()['error']:
             print("Error " + str(resp.json()['status']) + ": " + str(resp.json()['error']['sqlMessage']))
@@ -48,3 +48,5 @@ def make_delete_call(url):
             print("Error " + str(resp.json()['status']) + ": " + str(resp.json()['error']))
         return False
     return True
+
+print(make_post_call('http://localhost:8080/orders?user=scottcrawshaw&pw=crawdad', {'productID' : '123'}))
