@@ -91,12 +91,12 @@ router.delete("/customers/delete/:user",function(req,res){
 					});
 				}
 				else {
-					res.send(JSON.stringify({"status": 401}));
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
 				}
 			});
 		}
 		else {
-			res.send(JSON.stringify({"status": 401}));
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
 		}
 	});
 });
@@ -131,12 +131,12 @@ router.put("/customers/profile/bio/update",function(req,res){
 					});
 				}
 				else {
-					res.send(JSON.stringify({"status": 401}));
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
 				}
 			});
 		}
 		else {
-			res.send(JSON.stringify({"status": 401}));
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
 		}
 	});
 });
@@ -165,12 +165,12 @@ router.get("/customers/profile/bio/view/:user",function(req,res){
 					});
 				}
 				else {
-					res.send(JSON.stringify({"status": 401}));
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
 				}
 			});
 		}
 		else {
-			res.send(JSON.stringify({"status": 401}));
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
 		}
 	});
 });
@@ -200,12 +200,12 @@ router.get("/customers/view/:user",function(req,res){
 					});
 				}
 				else {
-					res.send(JSON.stringify({"status": 401}));
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
 				}
 			});
 		}
 		else {
-			res.send(JSON.stringify({"status": 401}));
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
 		}
 	});
 });
@@ -243,21 +243,21 @@ router.post("/customers/follow",function(req,res){
 								});
 							}
 							else {
-								res.send(JSON.stringify({"status": 401}));
+								res.send(JSON.stringify({"status": 403, "error": "You cannot follow yourself", "response": null}));
 							}
 						}
 						else {
-							res.send(JSON.stringify({"status": 401}));
+							res.send(JSON.stringify({"status": 404, "error": "User you are attempting to follow does not exist", "response": null}));
 						}
 					});
 				}
 				else {
-					res.send(JSON.stringify({"status": 401}));
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
 				}
 			});
 		}
 		else {
-			res.send(JSON.stringify({"status": 401}));
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
 		}
 	});
 });
@@ -295,21 +295,21 @@ router.delete("/customers/unfollow/:followinguser",function(req,res){
 								});
 							}
 							else {
-								res.send(JSON.stringify({"status": 401}));
+								res.send(JSON.stringify({"status": 403, "error": "You cannot unfollow yourself", "response": null}));
 							}
 						}
 						else {
-							res.send(JSON.stringify({"status": 401}));
+							res.send(JSON.stringify({"status": 404, "error": "User you are attempting to unfollow does not exist", "response": null}));
 						}
 					});
 				}
 				else {
-					res.send(JSON.stringify({"status": 401}));
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
 				}
 			});
 		}
 		else {
-			res.send(JSON.stringify({"status": 401}));
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
 		}
 	});
 });
@@ -339,12 +339,12 @@ router.get("/customers/profile/following/view/:user",function(req,res){
 					});
 				}
 				else {
-					res.send(JSON.stringify({"status": 401}));
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
 				}
 			});
 		}
 		else {
-			res.send(JSON.stringify({"status": 401}));
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
 		}
 	});
 });
@@ -374,12 +374,12 @@ router.get("/customers/profile/follower/view/:user",function(req,res){
 					});
 				}
 				else {
-					res.send(JSON.stringify({"status": 401}));
+					res.send(JSON.stringify({"status": 401, "error": "Bad password", "response": null}));
 				}
 			});
 		}
 		else {
-			res.send(JSON.stringify({"status": 401}));
+			res.send(JSON.stringify({"status": 401, "error": "Bad username", "response": null}));
 		}
 	});
 });
