@@ -190,15 +190,6 @@ router.get("/potions/:id",function(req,res){
 	});
 });
 
-// Gets one potion
-router.get("/potions/:id",function(req,res){
-	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM potions WHERE PotionID = ?', [req.params.id],function (error, results, fields) {
-			sendFinalResult(res, error, results);
-		});
-	});
-});
-
 // Add product to order
 // Creates a new order if none exists
 // Include productID in body
