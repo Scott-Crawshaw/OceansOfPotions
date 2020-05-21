@@ -226,6 +226,86 @@ router.post("/orders",function(req,res){
 	});
 });
 
+// Finalize the current active order
+// Include shippingAddress and privacy (true if private, false if public) in body
+router.put("/orders",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT OrderID FROM orders WHERE OrderCustomerID = ? AND OrderFinal = 0', [customerID],function (error, results, fields) {
+			if (error){
+				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+				return;
+			}
+			if(results.length > 0){
+				global.connection.query('UPDATE orders SET OrderShippingAddress = ?, OrderDate = CURDATE(), OrderPrivacy = ?, OrderFinal = 1, OrderPrice = (select sum(PotionPrice) from potions where PotionID in (select ProductID from orderproducts where OrderID=?)) WHERE OrderID = ?', [req.body.shippingAddress, req.body.privacy, results[0]['OrderID'], results[0]['OrderID']], function (error, results, fields) {
+					sendFinalResult(res, error, results);
+				});
+			}
+			else{
+				res.send(JSON.stringify({"status": 404, "error": "No active order found", "response": null}));
+				return;
+			}
+		});
+	});
+});
+
+// Get products for current active order
+router.get("/orders/products",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT OrderID FROM orders WHERE OrderCustomerID = ? AND OrderFinal = 0', [customerID],function (error, results, fields) {
+			if (error){
+				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+				return;
+			}
+			if(results.length > 0){
+				global.connection.query('SELECT * FROM potions WHERE PotionID in (select ProductID from orderproducts where OrderID = ?)', [results[0]['OrderID']], function (error, results, fields) {
+					sendFinalResult(res, error, results);
+				});
+			}
+			else{
+				res.send(JSON.stringify({"status": 404, "error": "No active order found", "response": null}));
+				return;
+			}
+		});
+	});
+});
+
+// Get products for a finalized order given the OrderID
+router.get("/orders/products/:id",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT * FROM potions WHERE PotionID in (select ProductID from orderproducts where OrderID = ?) AND (select count(*) from orders where OrderID = ? AND (OrderPrivacy = 0 OR OrderCustomerID = ?)) = 1', [req.params.id, req.params.id, customerID],function (error, results, fields) {
+			sendFinalResult(res, error, results);
+		});
+	});
+});
+
+
+// Get info for a finalized order given the OrderID
+router.get("/orders/:id",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT * FROM orders WHERE OrderID = ? AND (OrderPrivacy = 0 OR OrderCustomerID = ?)', [req.params.id, customerID],function (error, results, fields) {
+			sendFinalResult(res, error, results);
+		});
+	});
+});
+
+// Get all finalized orders given a CustomerID
+router.get("/customers/orders/:id",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT * FROM orders WHERE OrderCustomerID = ? AND OrderFinal = 1 AND (OrderPrivacy = 0 OR OrderCustomerID = ?)', [req.params.id, customerID],function (error, results, fields) {
+			sendFinalResult(res, error, results);
+		});
+	});
+});
+
+// Get all finalized orders for all customers that you are following
+router.get("/following/orders",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT * FROM orders WHERE OrderCustomerID in (select FollowingID from following where FollowerID = ?) AND OrderFinal = 1 AND OrderPrivacy = 0', [customerID],function (error, results, fields) {
+			sendFinalResult(res, error, results);
+		});
+	});
+});
+
 
 // General function for authenticating and running code
 // Functorun is the function that should be run if login is successful

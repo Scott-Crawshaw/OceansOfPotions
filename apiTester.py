@@ -48,5 +48,3 @@ def make_delete_call(url):
             print("Error " + str(resp.json()['status']) + ": " + str(resp.json()['error']))
         return False
     return True
-
-print(make_post_call('http://localhost:8080/orders?user=scottcrawshaw&pw=crawdad', {'productID' : '123'}))
