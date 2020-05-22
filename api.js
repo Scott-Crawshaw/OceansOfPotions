@@ -156,7 +156,6 @@ router.delete("/customers/follow/:user",function(req,res){
 // View a customer's following list
 router.get("/following",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		console.log(customerID);
 		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM customers WHERE CustomerID IN (SELECT FollowingID FROM following WHERE FollowerID = ?)', [customerID], function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
