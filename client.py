@@ -213,7 +213,25 @@ if __name__ == '__main__':
                         print("Follow request unsuccessful: please try again!")
 
             elif followCommand == "VIEW":
-                pass
+                viewFollow = input("Which would you like to view: your following list or you followers list? (FOLLOWING or FOLLOWERS): ")
+                if viewFollow == "FOLLOWING":
+                    viewFollowOption = "followings"
+                    response = make_get_call('http://localhost:8080/following?user=%s&pw=%s' % (loginUsername, loginPassword))
+
+                elif viewFollow == "FOLLOWERS":
+                    viewFollowOption = "followers"
+                    response = make_get_call('http://localhost:8080/followers?user=%s&pw=%s' % (loginUsername, loginPassword))
+
+                else:
+                    continue
+
+                if response is None:
+                    print("View request unsuccessful: please try again!")
+                else:
+                    if len(response) == 0:
+                        print("No " + viewFollowOption)
+                    for customer in response:
+                        print(customer)
 
         elif inputCommand == "ORDERS":
             pass
