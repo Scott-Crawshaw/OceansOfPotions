@@ -171,10 +171,12 @@ if __name__ == '__main__':
                     viewCustomersCommand = input("What would you like to view? (ALL to view all other customers, press enter to view a specific customer): ")
                     if viewCustomersCommand == "ALL":
                         response = make_get_call('http://localhost:8080/customers?user=%s&pw=%s' % (loginUsername, loginPassword))
+                        msgForEmptyResponse = "No customers"
 
                     elif viewCustomersCommand == "":
                         viewUserID = input("Customer ID of the account you want to view: ")
                         response = make_get_call('http://localhost:8080/customers/%s?user=%s&pw=%s' % (viewUserID, loginUsername, loginPassword))
+                        msgForEmptyResponse = "No customers of ID " + viewUserID
 
                     else:
                         continue
@@ -182,6 +184,9 @@ if __name__ == '__main__':
                     if response is None:
                         print("View request unsuccessful: please try again!")
                     else:
+                        if len(response) == 0:
+                            print(msgForEmptyResponse)
+                            continue
                         for customer in response:
                             print(customer)
 
@@ -230,6 +235,7 @@ if __name__ == '__main__':
                 else:
                     if len(response) == 0:
                         print("No " + viewFollowOption)
+                        continue
                     for customer in response:
                         print(customer)
 
@@ -237,4 +243,24 @@ if __name__ == '__main__':
             pass
 
         elif inputCommand == "POTIONS":
-            pass
+            print("Please provide your login information.")
+            loginUsername = input("Username: ")
+            loginPassword = input("Password: ")
+
+            viewPotionsID = input("Press enter to get all potions, or enter the id of a specific potion: ")
+            if viewPotionsID == "":
+                response = make_get_call('http://localhost:8080/potions?user=%s&pw=%s' % (loginUsername, loginPassword))
+                msgForEmptyResponse = "No potions"
+
+            else:
+                response = make_get_call('http://localhost:8080/potions/%s?user=%s&pw=%s' % (viewPotionsID, loginUsername, loginPassword))
+                msgForEmptyResponse = "No potion of ID " + viewPotionsID
+
+            if response is None:
+                print("View request unsuccessful: please try again!")
+            else:
+                if len(response) == 0:
+                    print(msgForEmptyResponse)
+                    continue
+                for customer in response:
+                    print(customer)
