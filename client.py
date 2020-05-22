@@ -168,13 +168,13 @@ if __name__ == '__main__':
                             print("Update failed: please try again!")
 
                 elif customerCommand == "VIEW":
-                    viewCustomersCommand = input("Would you like to view a specific customer or all customers? (ONE or ALL): ")
+                    viewCustomersCommand = input("What would you like to view? (ALL to view all customers, press enter to view a specific customer): ")
                     if viewCustomersCommand == "ALL":
                         response = make_get_call('http://localhost:8080/customers?user=%s&pw=%s' % (loginUsername, loginPassword))
 
-                    elif viewCustomersCommand == "ONE":
-                        viewUsername = input("Username of the account you want to view: ")
-                        response = make_get_call('http://localhost:8080/customers/%s?user=%s&pw=%s' % (viewUsername, loginUsername, loginPassword))
+                    elif viewCustomersCommand == "":
+                        viewUserID = input("Customer ID of the account you want to view: ")
+                        response = make_get_call('http://localhost:8080/customers/%s?user=%s&pw=%s' % (viewUserID, loginUsername, loginPassword))
 
                     else:
                         continue
