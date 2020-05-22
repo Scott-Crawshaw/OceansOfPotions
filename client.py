@@ -168,7 +168,7 @@ if __name__ == '__main__':
                             print("Update failed: please try again!")
 
                 elif customerCommand == "VIEW":
-                    viewCustomersCommand = input("What would you like to view? (ALL to view all customers, press enter to view a specific customer): ")
+                    viewCustomersCommand = input("What would you like to view? (ALL to view all other customers, press enter to view a specific customer): ")
                     if viewCustomersCommand == "ALL":
                         response = make_get_call('http://localhost:8080/customers?user=%s&pw=%s' % (loginUsername, loginPassword))
 
@@ -186,7 +186,34 @@ if __name__ == '__main__':
                             print(customer)
 
         elif inputCommand == "FOLLOWINGS":
-            pass
+            print("Please provide your login information.")
+            loginUsername = input("Username: ")
+            loginPassword = input("Password: ")
+
+            print("\nUse one of the following commands to access the database:")
+            print("UPDATE - This command lets you update who you follow")
+            print("VIEW - This command lets you view who you are following and who is following you")
+
+            followCommand = input("Type your command here: ")
+
+            if followCommand == "UPDATE":
+                changeRequested = input("Would you like to follow or unfollow someone? (FOLLOW or UNFOLLOW): ")
+                if changeRequested == "FOLLOW":
+                    followID = input("Customer ID of the customer you would like to follow: ")
+                    if make_post_call('http://localhost:8080/customers/follow/%s?user=%s&pw=%s' % (followID, loginUsername, loginPassword), {}):
+                        print("Now following customer " + followID)
+                    else:
+                        print("Follow request unsuccessful: please try again!")
+
+                elif changeRequested == "UNFOLLOW":
+                    unfollowID = input("Customer ID of the customer you would like to unfollow: ")
+                    if make_delete_call('http://localhost:8080/customers/follow/%s?user=%s&pw=%s' % (unfollowID, loginUsername, loginPassword)):
+                        print("Unfollowed customer " + unfollowID)
+                    else:
+                        print("Follow request unsuccessful: please try again!")
+
+            elif followCommand == "VIEW":
+                pass
 
         elif inputCommand == "ORDERS":
             pass
