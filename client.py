@@ -282,7 +282,56 @@ if __name__ == '__main__':
                         print("Product not added successfully: please try again!")
 
             elif orderCommand == "VIEW":
-                pass
+                print("What you you like to view? Enter one of the following commands: ")
+                print("CURRENT - View the products in your current order")
+                print("FINALIZED - View a finalized order")
+
+                viewOrderCommand = input("Type your command here: ")
+
+                if viewOrderCommand == "CURRENT":
+                    response = make_get_call('http://localhost:8080/orders/products?user=%s&pw=%s' % (loginUsername, loginPassword))
+                    msgForEmptyResponse = "No products in current order"
+
+                elif viewOrderCommand == "FINALIZED":
+                    print("How would you like to view a finalized order?")
+                    print("Options: ORDERID, CUSTOMERID, or press enter to get all orders of all the customers you are following")
+
+                    viewFinalizedCommand = input("Type your command here: ")
+
+                    if viewFinalizedCommand == "ORDERID":
+                        orderID = input("OrderID: ")
+                        queryFor = input("Enter PRODUCTS to view products for this order, enter INFO to view info about this order: ")
+
+                        if queryFor == "PRODUCTS":
+                            response = make_get_call('http://localhost:8080/orders/products/%s?user=%s&pw=%s' % (orderID, loginUsername, loginPassword))
+                            msgForEmptyResponse = "No products in order " + orderID
+
+                        elif queryFor == "INFO":
+                            response = make_get_call('http://localhost:8080/orders/%s?user=%s&pw=%s' % (orderID, loginUsername, loginPassword))
+                            msgForEmptyResponse = "No order info for order " + orderID
+
+                    elif viewFinalizedCommand == "CUSTOMERID":
+                        customerID = input("CustomerID: ")
+                        response = make_get_call('http://localhost:8080/customers/orders/%s?user=%s&pw=%s' % (customerID, loginUsername, loginPassword))
+                        msgForEmptyResponse = "No finalized orders for customer " + customerID
+
+                    elif viewFinalizedCommand == "":
+                        response = make_get_call('http://localhost:8080/following/orders?user=%s&pw=%s' % (loginUsername, loginPassword))
+                        msgForEmptyResponse = "No finalized orders for any of the customers you are following"
+
+                else:
+                    continue
+
+                if response is None:
+                    print("View request unsuccessful: please try again!")
+                else:
+                    if len(response) == 0:
+                        print(msgForEmptyResponse)
+                        continue
+                    for customer in response:
+                        print(customer)
+
+
 
         elif inputCommand == "POTIONS":
             print("Please provide your login information.")
