@@ -240,7 +240,49 @@ if __name__ == '__main__':
                         print(customer)
 
         elif inputCommand == "ORDERS":
-            pass
+            print("Please provide your login information.")
+            loginUsername = input("Username: ")
+            loginPassword = input("Password: ")
+
+            print("\nUse one of the following commands to access the database:")
+            print("UPDATE - This command lets you create an order, add products to an order, or finalize your current order")
+            print("VIEW - This command lets you view current/finalized orders belonging to yourself or others")
+
+            orderCommand = input("Type your command here: ")
+
+            if orderCommand == "UPDATE":
+                print("What would you like to do with your current order?")
+                updateOrderOption = input("Enter DONE to finalize your current order, enter CONTINUE to continue with your current order: ")
+                if updateOrderOption == "DONE":
+                    shippingAddress = input("Please enter your shipping address: ")
+                    privacyInput = input("Would you like this order to be private? (Y/N): ")
+
+                    while True:
+                        if privacyInput == "Y":
+                            privacy = "1"
+                            break
+                        elif privacyInput == "N":
+                            privacy = "0"
+                            break
+                        else:
+                            print("Invalid input! Please reenter: ")
+                            privacyInput = input("Would you like this order to be private? (Y/N): ")
+
+                    if make_put_call('http://localhost:8080/orders?user=%s&pw=%s' % (loginUsername, loginPassword), {"shippingAddress": shippingAddress, "privacy": privacy}):
+                        print("Order finalized!")
+                    else:
+                        print("Order finalization unsuccessful: please try again!")
+
+                elif updateOrderOption == "CONTINUE":
+                    print("What is the product that you want to add to your current order? A new order will be created if there is no current order")
+                    addedProductID = input("Product ID: ")
+                    if make_post_call('http://localhost:8080/orders?user=%s&pw=%s' % (loginUsername, loginPassword), {"productID": addedProductID}):
+                        print("Successfully added product " + addedProductID + " to your current order")
+                    else:
+                        print("Product not added successfully: please try again!")
+
+            elif orderCommand == "VIEW":
+                pass
 
         elif inputCommand == "POTIONS":
             print("Please provide your login information.")
