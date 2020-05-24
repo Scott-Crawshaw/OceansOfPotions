@@ -235,7 +235,7 @@ router.put("/orders",function(req,res){
 				return;
 			}
 			if(results.length > 0){
-				global.connection.query('UPDATE orders SET OrderShippingAddress = ?, OrderDate = CURDATE(), OrderPrivacy = ?, OrderFinal = 1, OrderPrice = (select sum(PotionPrice) from potions where PotionID in (select ProductID from orderproducts where OrderID=?)) WHERE OrderID = ?', [req.body.shippingAddress, req.body.privacy, results[0]['OrderID'], results[0]['OrderID']], function (error, results, fields) {
+				global.connection.query('UPDATE orders SET OrderShippingAddress = ?, OrderDate = CURDATE(), OrderPrivacy = ?, OrderFinal = 1, OrderPrice = (SELECT sum(allproducts.PotionPrice) FROM (SELECT potions.PotionPrice FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID WHERE orderproducts.OrderID = ?) AS allproducts) WHERE OrderID = ?', [req.body.shippingAddress, req.body.privacy, results[0]['OrderID'], results[0]['OrderID']], function (error, results, fields) {
 					sendFinalResult(res, error, results);
 				});
 			}
@@ -256,7 +256,7 @@ router.get("/orders/products",function(req,res){
 				return;
 			}
 			if(results.length > 0){
-				global.connection.query('SELECT * FROM potions WHERE PotionID in (select ProductID from orderproducts where OrderID = ?)', [results[0]['OrderID']], function (error, results, fields) {
+				global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID WHERE orderproducts.OrderID = ?', [results[0]['OrderID']], function (error, results, fields) {
 					sendFinalResult(res, error, results);
 				});
 			}
@@ -271,7 +271,7 @@ router.get("/orders/products",function(req,res){
 // Get products for a finalized order given the OrderID
 router.get("/orders/products/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM potions WHERE PotionID in (select ProductID from orderproducts where OrderID = ?) AND (select count(*) from orders where OrderID = ? AND (OrderPrivacy = 0 OR OrderCustomerID = ?)) = 1', [req.params.id, req.params.id, customerID],function (error, results, fields) {
+		global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID WHERE orderproducts.OrderID = ? AND (select count(*) from orders where OrderID = ? AND (OrderPrivacy = 0 OR OrderCustomerID = ?)) = 1', [req.params.id, req.params.id, customerID],function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
