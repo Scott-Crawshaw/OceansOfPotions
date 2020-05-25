@@ -1,5 +1,6 @@
 import argparse
 import requests
+import json
 
 # Returns None if failed and the response if successful. Prints error message.
 def make_get_call(url):
@@ -188,7 +189,7 @@ if __name__ == '__main__':
                             print(msgForEmptyResponse)
                             continue
                         for customer in response:
-                            print(customer)
+                            print(json.dumps(customer, indent=4))
 
         elif inputCommand == "FOLLOWINGS":
             print("Please provide your login information.")
@@ -237,7 +238,7 @@ if __name__ == '__main__':
                         print("No " + viewFollowOption)
                         continue
                     for customer in response:
-                        print(customer)
+                        print(json.dumps(customer, indent=4))
 
         elif inputCommand == "ORDERS":
             print("Please provide your login information.")
@@ -329,7 +330,7 @@ if __name__ == '__main__':
                         print(msgForEmptyResponse)
                         continue
                     for customer in response:
-                        print(customer)
+                        print(json.dumps(customer, indent=4))
 
 
 
@@ -354,4 +355,4 @@ if __name__ == '__main__':
                     print(msgForEmptyResponse)
                     continue
                 for customer in response:
-                    print(customer)
+                    print(json.dumps(customer, indent=4))
