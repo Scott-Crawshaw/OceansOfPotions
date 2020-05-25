@@ -305,6 +305,37 @@ router.get("/following/orders",function(req,res){
 	});
 });
 
+// Get all finalized orders for all customers that you are following
+router.get("/following/orders",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT * FROM orders WHERE OrderCustomerID in (select FollowingID from following where FollowerID = ?) AND OrderFinal = 1 AND OrderPrivacy = 0 ORDER BY OrderDate DESC', [customerID],function (error, results, fields) {
+			sendFinalResult(res, error, results);
+		});
+	});
+});
+
+// Remove item from active order. id is the ProductID.
+router.delete("/orders/products/:id",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT OrderID FROM orders WHERE OrderCustomerID = ? AND OrderFinal = 0', [customerID],function (error, results, fields) {
+			if (error){
+				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+				return;
+			}
+			if(results.length > 0){
+				global.connection.query('DELETE FROM orderproducts WHERE OrderID = ? AND ProductID = ? LIMIT 1', [results[0]['OrderID'], req.params.id], function (error, results, fields) {
+					sendFinalResult(res, error, results);
+				});
+			}
+			else{
+				res.send(JSON.stringify({"status": 404, "error": "No active order found", "response": null}));
+				return;
+			}
+		});
+	});
+});
+
+
 
 // General function for authenticating and running code
 // Functorun is the function that should be run if login is successful
