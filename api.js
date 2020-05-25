@@ -74,9 +74,9 @@ router.delete("/customers",function(req,res){
 });
 
 // View account details for any existing customer
-router.get("/customers/:user",function(req,res){
+router.get("/customers/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM customers WHERE CustomerID = ?', [req.params.user], function (error, results, fields) {
+		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM customers WHERE CustomerID = ?', [req.params.id], function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
@@ -339,6 +339,15 @@ router.delete("/orders/products/:id",function(req,res){
 router.delete("/orders/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		global.connection.query('DELETE FROM orders WHERE OrderID = ? AND OrderCustomerID = ? AND OrderDate >= NOW() - INTERVAL 1 DAY', [req.params.id, customerID], function (error, results, fields) {
+			sendFinalResult(res, error, results);
+		});
+	});
+});
+
+// Get account details for all customers with partially matching usernames
+router.get("/search/:username",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM customers WHERE CustomerUsername LIKE ?', [req.params.username + '%'], function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
