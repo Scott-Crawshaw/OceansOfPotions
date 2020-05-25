@@ -235,7 +235,7 @@ router.put("/orders",function(req,res){
 				return;
 			}
 			if(results.length > 0){
-				global.connection.query('UPDATE orders SET OrderShippingAddress = ?, OrderDate = CURDATE(), OrderPrivacy = ?, OrderFinal = 1, OrderPrice = (SELECT sum(allproducts.PotionPrice) FROM (SELECT potions.PotionPrice FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID WHERE orderproducts.OrderID = ?) AS allproducts) WHERE OrderID = ?', [req.body.shippingAddress, req.body.privacy, results[0]['OrderID'], results[0]['OrderID']], function (error, results, fields) {
+				global.connection.query('UPDATE orders SET OrderShippingAddress = ?, OrderDate = NOW(), OrderPrivacy = ?, OrderFinal = 1, OrderPrice = (SELECT sum(allproducts.PotionPrice) FROM (SELECT potions.PotionPrice FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID WHERE orderproducts.OrderID = ?) AS allproducts) WHERE OrderID = ?', [req.body.shippingAddress, req.body.privacy, results[0]['OrderID'], results[0]['OrderID']], function (error, results, fields) {
 					sendFinalResult(res, error, results);
 				});
 			}
@@ -331,6 +331,15 @@ router.delete("/orders/products/:id",function(req,res){
 				res.send(JSON.stringify({"status": 404, "error": "No active order found", "response": null}));
 				return;
 			}
+		});
+	});
+});
+
+// Cancel order within 24 hrs. id is OrderID
+router.delete("/orders/:id",function(req,res){
+	authAndRun(req, res, function(req, res, customerID){
+		global.connection.query('DELETE FROM orders WHERE OrderID = ? AND OrderCustomerID = ? AND OrderDate >= NOW() - INTERVAL 1 DAY', [req.params.id, customerID], function (error, results, fields) {
+			sendFinalResult(res, error, results);
 		});
 	});
 });
