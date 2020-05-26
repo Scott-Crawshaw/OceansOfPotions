@@ -354,7 +354,6 @@ router.get("/search/:username",function(req,res){
 });
 
 
-
 // General function for authenticating and running code
 // Functorun is the function that should be run if login is successful
 // Always need user and pw in query
