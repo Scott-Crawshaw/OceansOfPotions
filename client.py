@@ -246,12 +246,21 @@ if __name__ == '__main__':
             loginPassword = input("Password: ")
 
             print("\nUse one of the following commands to access the database:")
+            print("DELETE - This command lets you cancel an order, given the order was made in the last 24 hours")
             print("UPDATE - This command lets you create an order, add/remove products from an order, or finalize your current order")
             print("VIEW - This command lets you view current/finalized orders belonging to yourself or others")
 
             orderCommand = input("Type your command here: ")
 
-            if orderCommand == "UPDATE":
+            if orderCommand == "DELETE":
+                print("What is the order you would like to cancel?")
+                deleteOrderID = input("OrderID: ")
+                if make_delete_call('http://localhost:8080/orders/%s?user=%s&pw=%s' % (deleteOrderID, loginUsername, loginPassword)):
+                    print("Successfully deleted order " + deleteOrderID)
+                else:
+                    print("Order cancellation unsuccessfully: please try again!")
+
+            elif orderCommand == "UPDATE":
                 print("What would you like to do with your current order?")
                 updateOrderOption = input("Enter DONE to finalize your current order, enter CONTINUE to continue with your current order: ")
                 if updateOrderOption == "DONE":
