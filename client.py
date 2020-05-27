@@ -246,7 +246,7 @@ if __name__ == '__main__':
             loginPassword = input("Password: ")
 
             print("\nUse one of the following commands to access the database:")
-            print("UPDATE - This command lets you create an order, add products to an order, or finalize your current order")
+            print("UPDATE - This command lets you create an order, add/remove products from an order, or finalize your current order")
             print("VIEW - This command lets you view current/finalized orders belonging to yourself or others")
 
             orderCommand = input("Type your command here: ")
@@ -275,12 +275,23 @@ if __name__ == '__main__':
                         print("Order finalization unsuccessful: please try again!")
 
                 elif updateOrderOption == "CONTINUE":
-                    print("What is the product that you want to add to your current order? A new order will be created if there is no current order")
-                    addedProductID = input("Product ID: ")
-                    if make_post_call('http://localhost:8080/orders?user=%s&pw=%s' % (loginUsername, loginPassword), {"productID": addedProductID}):
-                        print("Successfully added product " + addedProductID + " to your current order")
-                    else:
-                        print("Product not added successfully: please try again!")
+                    updateCurrent = input("Would you like to add or remove an item from your order? (ADD or REMOVE): ")
+                    if updateCurrent == "ADD":
+                        print("What is the product that you want to add to your current order? A new order will be created if there is no current order")
+                        addedProductID = input("Product ID: ")
+                        if make_post_call('http://localhost:8080/orders?user=%s&pw=%s' % (loginUsername, loginPassword), {"productID": addedProductID}):
+                            print("Successfully added product " + addedProductID + " to your current order")
+                        else:
+                            print("Product not added successfully: please try again!")
+
+                    elif updateCurrent == "REMOVE":
+                        print("What is the product that you want to remove from your current order?")
+                        removedProductID = input("Product ID: ")
+                        if make_delete_call('http://localhost:8080/orders/products/%s?user=%s&pw=%s' % (removedProductID, loginUsername, loginPassword)):
+                            print("Successfully deleted product " + removedProductID + " from your current order")
+                        else:
+                            print("Product deletion unsuccessfully: please try again!")
+
 
             elif orderCommand == "VIEW":
                 print("What you you like to view? Enter one of the following commands: ")
