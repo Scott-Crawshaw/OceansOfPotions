@@ -169,10 +169,15 @@ if __name__ == '__main__':
                             print("Update failed: please try again!")
 
                 elif customerCommand == "VIEW":
-                    viewCustomersCommand = input("What would you like to view? (ALL to view all other customers, press enter to view a specific customer): ")
+                    viewCustomersCommand = input("What would you like to view? (ALL to view all other customers, SEARCH to lookup customers by username, press enter to view a specific customer): ")
                     if viewCustomersCommand == "ALL":
                         response = make_get_call('http://localhost:8080/customers?user=%s&pw=%s' % (loginUsername, loginPassword))
                         msgForEmptyResponse = "No customers"
+
+                    elif viewCustomersCommand == "SEARCH":
+                        search = input("Enter username search: ")
+                        response = make_get_call('http://localhost:8080/search/%s?user=%s&pw=%s' % (search, loginUsername, loginPassword))
+                        msgForEmptyResponse = "No matching username"
 
                     elif viewCustomersCommand == "":
                         viewUserID = input("Customer ID of the account you want to view: ")
