@@ -134,6 +134,7 @@ if __name__ == '__main__':
                         newPassword = input("New password: ")
                         if make_put_call('http://localhost:8080/customers/password?user=%s&pw=%s' % (loginUsername, loginPassword), {"newPassword": newPassword}):
                             print("Password updated successfully!")
+                            loginPassword = None
                         else:
                             print("Password update failed: please try again!")
 
@@ -168,6 +169,8 @@ if __name__ == '__main__':
 
                         if make_put_call('http://localhost:8080/customers?user=%s&pw=%s' % (loginUsername, loginPassword), {"attribute": attribute, "newValue": newValue}):
                             print("Updated " + attrToUpdate + " successfully")
+                            if attrToUpdate == "USERNAME":
+                                loginUsername = None
                         else:
                             print("Update failed: please try again!")
 
