@@ -169,10 +169,15 @@ if __name__ == '__main__':
                             print("Update failed: please try again!")
 
                 elif customerCommand == "VIEW":
-                    viewCustomersCommand = input("What would you like to view? (ALL to view all other customers, press enter to view a specific customer): ")
+                    viewCustomersCommand = input("What would you like to view? (ALL to view all other customers, SEARCH to lookup customers by username, press enter to view a specific customer): ")
                     if viewCustomersCommand == "ALL":
                         response = make_get_call('http://localhost:8080/customers?user=%s&pw=%s' % (loginUsername, loginPassword))
                         msgForEmptyResponse = "No customers"
+
+                    elif viewCustomersCommand == "SEARCH":
+                        search = input("Enter username search: ")
+                        response = make_get_call('http://localhost:8080/search/%s?user=%s&pw=%s' % (search, loginUsername, loginPassword))
+                        msgForEmptyResponse = "No matching username"
 
                     elif viewCustomersCommand == "":
                         viewUserID = input("Customer ID of the account you want to view: ")
@@ -246,12 +251,21 @@ if __name__ == '__main__':
             loginPassword = input("Password: ")
 
             print("\nUse one of the following commands to access the database:")
-            print("UPDATE - This command lets you create an order, add products to an order, or finalize your current order")
+            print("DELETE - This command lets you cancel an order, given the order was made in the last 24 hours")
+            print("UPDATE - This command lets you create an order, add/remove products from an order, or finalize your current order")
             print("VIEW - This command lets you view current/finalized orders belonging to yourself or others")
 
             orderCommand = input("Type your command here: ")
 
-            if orderCommand == "UPDATE":
+            if orderCommand == "DELETE":
+                print("What is the order you would like to cancel?")
+                deleteOrderID = input("OrderID: ")
+                if make_delete_call('http://localhost:8080/orders/%s?user=%s&pw=%s' % (deleteOrderID, loginUsername, loginPassword)):
+                    print("Successfully deleted order " + deleteOrderID)
+                else:
+                    print("Order cancellation unsuccessfully: please try again!")
+
+            elif orderCommand == "UPDATE":
                 print("What would you like to do with your current order?")
                 updateOrderOption = input("Enter DONE to finalize your current order, enter CONTINUE to continue with your current order: ")
                 if updateOrderOption == "DONE":
@@ -275,12 +289,23 @@ if __name__ == '__main__':
                         print("Order finalization unsuccessful: please try again!")
 
                 elif updateOrderOption == "CONTINUE":
-                    print("What is the product that you want to add to your current order? A new order will be created if there is no current order")
-                    addedProductID = input("Product ID: ")
-                    if make_post_call('http://localhost:8080/orders?user=%s&pw=%s' % (loginUsername, loginPassword), {"productID": addedProductID}):
-                        print("Successfully added product " + addedProductID + " to your current order")
-                    else:
-                        print("Product not added successfully: please try again!")
+                    updateCurrent = input("Would you like to add or remove an item from your order? (ADD or REMOVE): ")
+                    if updateCurrent == "ADD":
+                        print("What is the product that you want to add to your current order? A new order will be created if there is no current order")
+                        addedProductID = input("Product ID: ")
+                        if make_post_call('http://localhost:8080/orders?user=%s&pw=%s' % (loginUsername, loginPassword), {"productID": addedProductID}):
+                            print("Successfully added product " + addedProductID + " to your current order")
+                        else:
+                            print("Product not added successfully: please try again!")
+
+                    elif updateCurrent == "REMOVE":
+                        print("What is the product that you want to remove from your current order?")
+                        removedProductID = input("Product ID: ")
+                        if make_delete_call('http://localhost:8080/orders/products/%s?user=%s&pw=%s' % (removedProductID, loginUsername, loginPassword)):
+                            print("Successfully deleted product " + removedProductID + " from your current order")
+                        else:
+                            print("Product deletion unsuccessfully: please try again!")
+
 
             elif orderCommand == "VIEW":
                 print("What you you like to view? Enter one of the following commands: ")
