@@ -305,15 +305,6 @@ router.get("/following/orders",function(req,res){
 	});
 });
 
-// Get all finalized orders for all customers that you are following
-router.get("/following/orders",function(req,res){
-	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM orders WHERE OrderCustomerID in (select FollowingID from following where FollowerID = ?) AND OrderFinal = 1 AND OrderPrivacy = 0 ORDER BY OrderDate DESC', [customerID],function (error, results, fields) {
-			sendFinalResult(res, error, results);
-		});
-	});
-});
-
 // Remove item from active order. id is the ProductID.
 router.delete("/orders/products/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){

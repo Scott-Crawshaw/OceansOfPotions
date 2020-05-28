@@ -52,6 +52,8 @@ def make_delete_call(url):
 
 
 if __name__ == '__main__':
+    loginUsername = None
+    loginPassword = None
     while True:
         print("\nUse one of the following commands to choose a part of the database to view/change, or QUIT to quit:")
         print("CUSTOMERS - This command lets you create, view, or update customer accounts")
@@ -105,9 +107,10 @@ if __name__ == '__main__':
                     print("Account creation unsuccessful: please try again!")
 
             elif hasAccount == "Y":
-                print("Please provide your login information.")
-                loginUsername = input("Username: ")
-                loginPassword = input("Password: ")
+                if loginUsername == None or loginPassword == None:
+                    print("Please provide your login information.")
+                    loginUsername = input("Username: ")
+                    loginPassword = input("Password: ")
 
                 print("\nUse one of the following commands to access the database:")
                 print("DELETE - This command lets you delete your own account")
@@ -197,9 +200,10 @@ if __name__ == '__main__':
                             print(json.dumps(customer, indent=4))
 
         elif inputCommand == "FOLLOWINGS":
-            print("Please provide your login information.")
-            loginUsername = input("Username: ")
-            loginPassword = input("Password: ")
+            if loginUsername == None or loginPassword == None:
+                print("Please provide your login information.")
+                loginUsername = input("Username: ")
+                loginPassword = input("Password: ")
 
             print("\nUse one of the following commands to access the database:")
             print("UPDATE - This command lets you update who you follow")
@@ -246,9 +250,10 @@ if __name__ == '__main__':
                         print(json.dumps(customer, indent=4))
 
         elif inputCommand == "ORDERS":
-            print("Please provide your login information.")
-            loginUsername = input("Username: ")
-            loginPassword = input("Password: ")
+            if loginUsername == None or loginPassword == None:
+                print("Please provide your login information.")
+                loginUsername = input("Username: ")
+                loginPassword = input("Password: ")
 
             print("\nUse one of the following commands to access the database:")
             print("DELETE - This command lets you cancel an order, given the order was made in the last 24 hours")
@@ -360,9 +365,10 @@ if __name__ == '__main__':
 
 
         elif inputCommand == "POTIONS":
-            print("Please provide your login information.")
-            loginUsername = input("Username: ")
-            loginPassword = input("Password: ")
+            if loginUsername == None or loginPassword == None:
+                print("Please provide your login information.")
+                loginUsername = input("Username: ")
+                loginPassword = input("Password: ")
 
             viewPotionsID = input("Press enter to get all potions, or enter the id of a specific potion: ")
             if viewPotionsID == "":
