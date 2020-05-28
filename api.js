@@ -174,7 +174,7 @@ router.get("/followers",function(req,res){
 // Gets all potions
 router.get("/potions",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM potions', function (error, results, fields) {
+		global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice, GROUP_CONCAT(languages.LanguageName) as Languages FROM potions JOIN languages ON languages.PotionID = potions.PotionID GROUP BY potions.PotionID', function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
@@ -183,7 +183,7 @@ router.get("/potions",function(req,res){
 // Gets one potion
 router.get("/potions/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM potions WHERE PotionID = ?', [req.params.id],function (error, results, fields) {
+		global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice, GROUP_CONCAT(languages.LanguageName) as Languages FROM potions JOIN languages ON languages.PotionID = potions.PotionID WHERE potions.PotionID = ? GROUP BY potions.PotionID', [req.params.id],function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
@@ -256,7 +256,7 @@ router.get("/orders/products",function(req,res){
 				return;
 			}
 			if(results.length > 0){
-				global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID WHERE orderproducts.OrderID = ?', [results[0]['OrderID']], function (error, results, fields) {
+				global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice, GROUP_CONCAT(DISTINCT languages.LanguageName) as Languages, TRUNCATE(count(*)/(LENGTH(GROUP_CONCAT(DISTINCT languages.LanguageName)) - LENGTH(REPLACE(GROUP_CONCAT(DISTINCT languages.LanguageName), \',\', \'\')) + 1), 0) as Quantity FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID JOIN languages ON languages.PotionID = potions.PotionID WHERE orderproducts.OrderID = ? GROUP BY potions.PotionID', [results[0]['OrderID']], function (error, results, fields) {
 					sendFinalResult(res, error, results);
 				});
 			}
@@ -271,7 +271,7 @@ router.get("/orders/products",function(req,res){
 // Get products for a finalized order given the OrderID
 router.get("/orders/products/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID WHERE orderproducts.OrderID = ? AND (select count(*) from orders where OrderID = ? AND (OrderPrivacy = 0 OR OrderCustomerID = ?)) = 1', [req.params.id, req.params.id, customerID],function (error, results, fields) {
+		global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice, GROUP_CONCAT(DISTINCT languages.LanguageName) as Languages, TRUNCATE(count(*)/(LENGTH(GROUP_CONCAT(DISTINCT languages.LanguageName)) - LENGTH(REPLACE(GROUP_CONCAT(DISTINCT languages.LanguageName), \',\', \'\')) + 1), 0) as Quantity FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID JOIN languages ON languages.PotionID = potions.PotionID WHERE orderproducts.OrderID = ? AND (select count(*) from orders where OrderID = ? AND (OrderPrivacy = 0 OR OrderCustomerID = ?)) = 1 GROUP BY potions.PotionID', [req.params.id, req.params.id, customerID],function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
