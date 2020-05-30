@@ -4,8 +4,12 @@ import json
 
 # Returns None if failed and the response if successful. Prints error message.
 def make_get_call(url):
+    global loginUsername, loginPassword
     resp = requests.get(url)
     if resp.json()['status'] != 200:
+        if resp.json()['status'] == 401:
+            loginUsername = None
+            loginPassword = None
         # Make sure not to expose SQL by checking if response is a dict before printing error message
         if type(resp.json()['error']) == dict and 'sqlMessage' in resp.json()['error']:
             print("Error " + str(resp.json()['status']) + ": " + str(resp.json()['error']['sqlMessage']))
@@ -16,8 +20,12 @@ def make_get_call(url):
 
 # Returns true if successful and false if failed. Prints error message.
 def make_post_call(url, data):
+    global loginUsername, loginPassword
     resp = requests.post(url, json=data)
     if resp.json()['status'] != 200:
+        if resp.json()['status'] == 401:
+            loginUsername = None
+            loginPassword = None
         # Make sure not to expose SQL by checking if response is a dict before printing error message
         if type(resp.json()['error']) == dict and 'sqlMessage' in resp.json()['error']:
             print("Error " + str(resp.json()['status']) + ": " + str(resp.json()['error']['sqlMessage']))
@@ -28,8 +36,12 @@ def make_post_call(url, data):
 
 # Returns true if successful and false if failed. Prints error message.
 def make_put_call(url, data):
+    global loginUsername, loginPassword
     resp = requests.put(url, json=data)
     if resp.json()['status'] != 200:
+        if resp.json()['status'] == 401:
+            loginUsername = None
+            loginPassword = None
         # Make sure not to expose SQL by checking if response is a dict before printing error message
         if type(resp.json()['error']) == dict and 'sqlMessage' in resp.json()['error']:
             print("Error " + str(resp.json()['status']) + ": " + str(resp.json()['error']['sqlMessage']))
@@ -40,8 +52,12 @@ def make_put_call(url, data):
 
 # Returns true if successful and false if failed. Prints error message.
 def make_delete_call(url):
+    global loginUsername, loginPassword
     resp = requests.delete(url)
     if resp.json()['status'] != 200:
+        if resp.json()['status'] == 401:
+            loginUsername = None
+            loginPassword = None
         # Make sure not to expose SQL by checking if response is a dict before printing error message
         if type(resp.json()['error']) == dict and 'sqlMessage' in resp.json()['error']:
             print("Error " + str(resp.json()['status']) + ": " + str(resp.json()['error']['sqlMessage']))
