@@ -68,7 +68,13 @@ router.post("/customers",function(req,res){
 router.delete("/customers",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		global.connection.query('DELETE FROM customers WHERE CustomerID = ?', [customerID], function (error, results, fields) {
-			sendFinalResult(res, error, results);
+			if (error){
+				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+				return;
+			}
+			global.connection.query('SELECT * FROM customers WHERE CustomerID = ?', [customerID], function (error, results, fields) {
+				sendDeleteResult(res, error, results);
+			});
 		});
 	});
 });
@@ -150,8 +156,25 @@ router.delete("/customers/follow/:user",function(req,res){
 		followerID = customerID;
 		followingID = req.params.user;
 		if (followingID != followerID) { // If not attempting to unfollow self
-			global.connection.query('DELETE FROM following WHERE FollowerID = ? AND FollowingID = ?', [followerID, followingID], function (error, results, fields) {
-				sendFinalResult(res, error, results);
+			global.connection.query('SELECT COUNT(*) AS FollowingNum FROM following WHERE FollowerID = ? AND FollowingID = ?',[followerID, followingID], function (error, results, fields) {
+				if (error){
+					res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+					return;
+				}
+				if (results.length > 0 && results[0]['FollowingNum'] > 0) {
+					global.connection.query('DELETE FROM following WHERE FollowerID = ? AND FollowingID = ?', [followerID, followingID], function (error, results, fields) {
+						if (error){
+							res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+							return;
+						}
+						global.connection.query('SELECT * FROM following WHERE FollowerID = ? AND FollowingID = ?', [followerID, followingID], function (error, results, fields) {
+							sendDeleteResult(res, error, results);
+						});
+					});
+				}
+				else {
+					res.send(JSON.stringify({"status": 404, "error": "You're not currently following this user", "response": null}));
+				}
 			});
 		}
 		else {
@@ -347,8 +370,27 @@ router.delete("/orders/products/:id",function(req,res){
 				return;
 			}
 			if(results.length > 0){
-				global.connection.query('DELETE FROM orderproducts WHERE OrderID = ? AND ProductID = ? LIMIT 1', [results[0]['OrderID'], req.params.id], function (error, results, fields) {
-					sendFinalResult(res, error, results);
+				orderID = results[0]['OrderID'];
+				global.connection.query('SELECT COUNT(*) AS ProductsNum FROM orderproducts WHERE OrderID = ? AND ProductID = ?', [orderID, req.params.id], function (error, results, fields) {
+					if (error){
+						res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+						return;
+					}
+					if (results.length > 0 && results[0]['ProductsNum'] > 0) {
+						global.connection.query('DELETE FROM orderproducts WHERE OrderID = ? AND ProductID = ? LIMIT 1', [orderID, req.params.id], function (error, results, fields) {
+							if (error){
+								res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+								return;
+							}
+							// If multiple of an item, sendDeleteResult will always return error so DO NOT USE IT
+							// If confirmed that product id exists for this active order id, then delete will be successful unless server error, caught above
+							res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+						});
+					}
+					else {
+						res.send(JSON.stringify({"status": 404, "error": "Product not found in order", "response": null}));
+						return;
+					}
 				});
 			}
 			else{
@@ -368,17 +410,7 @@ router.delete("/orders/:id",function(req,res){
 				return;
 			}
 			global.connection.query('SELECT * FROM orders WHERE OrderID = ?', [req.params.id], function (error, results, fields) {
-				if (error){
-					res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
-					return;
-				}
-				// Can't use generic sendFinalResult function because need to indicate whether delete successful!!
-				if (results.length > 0) {
-					res.send(JSON.stringify({"status": 500, "error": "could not cancel order", "response": null}));
-				}
-				else {
-					res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
-				}
+				sendDeleteResult(res, error, results);
 			});
 		});
 	});
@@ -426,6 +458,15 @@ function authAndRun(req, res, funcToRun){
 // General function for if error then 500, else 200 response
 function sendFinalResult(res, error, results){
 	if (error){
+		res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+		return;
+	}
+	res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+}
+
+// General function for delete request results: if error or delete unsuccessful then 500, else 200 response
+function sendDeleteResult(res, error, results){
+	if (error || results.length > 0){
 		res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
 		return;
 	}
