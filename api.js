@@ -363,7 +363,23 @@ router.delete("/orders/products/:id",function(req,res){
 router.delete("/orders/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		global.connection.query('DELETE FROM orders WHERE OrderID = ? AND OrderCustomerID = ? AND OrderDate >= NOW() - INTERVAL 1 DAY', [req.params.id, customerID], function (error, results, fields) {
-			sendFinalResult(res, error, results);
+			if (error){
+				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+				return;
+			}
+			global.connection.query('SELECT * FROM orders WHERE OrderID = ?', [req.params.id], function (error, results, fields) {
+				if (error){
+					res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+					return;
+				}
+				// Can't use generic sendFinalResult function because need to indicate whether delete successful!!
+				if (results.length > 0) {
+					res.send(JSON.stringify({"status": 500, "error": "could not cancel order", "response": null}));
+				}
+				else {
+					res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+				}
+			});
 		});
 	});
 });
