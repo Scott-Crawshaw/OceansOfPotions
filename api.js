@@ -289,6 +289,10 @@ router.get("/orders/products/:id",function(req,res){
 router.get("/orders/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
 		global.connection.query('SELECT OrderCustomerID FROM orders WHERE OrderID = ?', [req.params.id], function (error, results, fields) {
+			if (error){
+				res.send(JSON.stringify({"status": 500, "error": error, "response": null}));
+				return;
+			}
 			if (results.length > 0) {
 				if (results[0].OrderCustomerID == customerID) { // Own order
 					global.connection.query('SELECT * FROM orders WHERE OrderID = ? AND OrderFinal = 1', [req.params.id],function (error, results, fields) {
