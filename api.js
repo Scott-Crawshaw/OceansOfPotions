@@ -278,7 +278,7 @@ router.get("/orders/products",function(req,res){
 // Get products for a finalized order given the OrderID
 router.get("/orders/products/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice, GROUP_CONCAT(DISTINCT languages.LanguageName) as Languages, TRUNCATE(count(*)/(LENGTH(GROUP_CONCAT(DISTINCT languages.LanguageName)) - LENGTH(REPLACE(GROUP_CONCAT(DISTINCT languages.LanguageName), \',\', \'\')) + 1), 0) as Quantity FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID JOIN languages ON languages.PotionID = potions.PotionID WHERE orderproducts.OrderID = ? AND (select count(*) from orders where OrderID = ? AND (OrderPrivacy = 0 OR OrderCustomerID = ?)) = 1 GROUP BY potions.PotionID', [req.params.id, req.params.id, customerID],function (error, results, fields) {
+		global.connection.query('SELECT potions.PotionID, potions.PotionName, potions.PotionDescription, potions.PotionPrice, GROUP_CONCAT(DISTINCT languages.LanguageName) as Languages, TRUNCATE(count(*)/(LENGTH(GROUP_CONCAT(DISTINCT languages.LanguageName)) - LENGTH(REPLACE(GROUP_CONCAT(DISTINCT languages.LanguageName), \',\', \'\')) + 1), 0) as Quantity FROM orderproducts JOIN potions ON potions.PotionID = orderproducts.ProductID JOIN languages ON languages.PotionID = potions.PotionID WHERE orderproducts.OrderID = ? AND (select count(*) from orders where OrderID = ? AND OrderFinal = 1 AND (OrderPrivacy = 0 OR OrderCustomerID = ?)) = 1 GROUP BY potions.PotionID', [req.params.id, req.params.id, customerID],function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
