@@ -291,12 +291,12 @@ router.get("/orders/:id",function(req,res){
 		global.connection.query('SELECT OrderCustomerID FROM orders WHERE OrderID = ?', [req.params.id], function (error, results, fields) {
 			if (results.length > 0) {
 				if (results[0].OrderCustomerID == customerID) { // Own order
-					global.connection.query('SELECT * FROM orders WHERE OrderID = ?', [req.params.id],function (error, results, fields) {
+					global.connection.query('SELECT * FROM orders WHERE OrderID = ? AND OrderFinal = 1', [req.params.id],function (error, results, fields) {
 						sendFinalResult(res, error, results);
 					});
 				}
 				else { // Someone else's order
-					global.connection.query('SELECT OrderID, OrderCustomerID, OrderDate, OrderPrivacy, OrderPrice, OrderFinal FROM orders WHERE OrderID = ? AND OrderPrivacy = 0', [req.params.id], function (error, results, fields) {
+					global.connection.query('SELECT OrderID, OrderCustomerID, OrderDate, OrderPrivacy, OrderPrice, OrderFinal FROM orders WHERE OrderID = ? AND OrderFinal = 1 AND OrderPrivacy = 0', [req.params.id], function (error, results, fields) {
 						sendFinalResult(res, error, results);
 					});
 				}
