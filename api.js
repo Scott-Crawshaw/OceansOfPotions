@@ -76,9 +76,16 @@ router.delete("/customers",function(req,res){
 // View account details for any existing customer
 router.get("/customers/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM customers WHERE CustomerID = ?', [req.params.id], function (error, results, fields) {
-			sendFinalResult(res, error, results);
-		});
+		if (customerID == req.params.id) { // If viewing own profile, show everything
+			global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM customers WHERE CustomerID = ?', [req.params.id], function (error, results, fields) {
+				sendFinalResult(res, error, results);
+			});
+		}
+		else { // Otherwise hide email and phone and DOB
+			global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM customers WHERE CustomerID = ?', [req.params.id], function (error, results, fields) {
+				sendFinalResult(res, error, results);
+			});
+		}
 	});
 });
 
@@ -338,7 +345,7 @@ router.delete("/orders/:id",function(req,res){
 // Get account details for all customers with partially matching usernames
 router.get("/search/:username",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername, CustomerDOB, CustomerPrimaryEmail, CustomerPrimaryPhone FROM customers WHERE CustomerUsername LIKE ?', [req.params.username + '%'], function (error, results, fields) {
+		global.connection.query('SELECT CustomerID, CustomerFirstName, CustomerLastName, CustomerMiddleInitial, CustomerUsername FROM customers WHERE CustomerID != ? AND CustomerUsername LIKE ?', [customerID, req.params.username + '%'], function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
