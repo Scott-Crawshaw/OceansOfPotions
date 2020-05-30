@@ -288,8 +288,23 @@ router.get("/orders/products/:id",function(req,res){
 // Get info for a finalized order given the OrderID
 router.get("/orders/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM orders WHERE OrderID = ? AND (OrderPrivacy = 0 OR OrderCustomerID = ?)', [req.params.id, customerID],function (error, results, fields) {
-			sendFinalResult(res, error, results);
+		global.connection.query('SELECT OrderCustomerID FROM orders WHERE OrderID = ?', [req.params.id], function (error, results, fields) {
+			if (results.length > 0) {
+				if (results[0].OrderCustomerID == customerID) { // Own order
+					global.connection.query('SELECT * FROM orders WHERE OrderID = ?', [req.params.id],function (error, results, fields) {
+						sendFinalResult(res, error, results);
+					});
+				}
+				else { // Someone else's order
+					global.connection.query('SELECT OrderID, OrderCustomerID, OrderDate, OrderPrivacy, OrderPrice, OrderFinal FROM orders WHERE OrderID = ? AND OrderPrivacy = 0', [req.params.id], function (error, results, fields) {
+						sendFinalResult(res, error, results);
+					});
+				}
+			}
+			else {
+				res.send(JSON.stringify({"status": 404, "error": "No finalized order found with this order ID", "response": null}));
+				return;
+			}
 		});
 	});
 });
@@ -297,16 +312,23 @@ router.get("/orders/:id",function(req,res){
 // Get all finalized orders given a CustomerID
 router.get("/customers/orders/:id",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM orders WHERE OrderCustomerID = ? AND OrderFinal = 1 AND (OrderPrivacy = 0 OR OrderCustomerID = ?)', [req.params.id, customerID],function (error, results, fields) {
-			sendFinalResult(res, error, results);
-		});
+		if (customerID == req.params.id) { // Own order
+			global.connection.query('SELECT * FROM orders WHERE OrderCustomerID = ? AND OrderFinal = 1', [req.params.id],function (error, results, fields) {
+				sendFinalResult(res, error, results);
+			});
+		}
+		else { // Someone else's order
+			global.connection.query('SELECT OrderID, OrderCustomerID, OrderDate, OrderPrivacy, OrderPrice, OrderFinal FROM orders WHERE OrderCustomerID = ? AND OrderFinal = 1 AND OrderPrivacy = 0', [req.params.id],function (error, results, fields) {
+				sendFinalResult(res, error, results);
+			});
+		}
 	});
 });
 
 // Get all finalized orders for all customers that you are following
 router.get("/following/orders",function(req,res){
 	authAndRun(req, res, function(req, res, customerID){
-		global.connection.query('SELECT * FROM orders WHERE OrderCustomerID in (select FollowingID from following where FollowerID = ?) AND OrderFinal = 1 AND OrderPrivacy = 0 ORDER BY OrderDate DESC', [customerID],function (error, results, fields) {
+		global.connection.query('SELECT OrderID, OrderCustomerID, OrderDate, OrderPrivacy, OrderPrice, OrderFinal FROM orders WHERE OrderCustomerID in (select FollowingID from following where FollowerID = ?) AND OrderFinal = 1 AND OrderPrivacy = 0 ORDER BY OrderDate DESC', [customerID],function (error, results, fields) {
 			sendFinalResult(res, error, results);
 		});
 	});
